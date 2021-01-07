@@ -7,7 +7,6 @@
  * https://developer.spotify.com/web-api/authorization-guide/#authorization_code_flow
  */
 
-var prod = true;
 var express = require("express"); // Express web server framework
 var request = require("request"); // "Request" library
 var cors = require("cors");
@@ -18,6 +17,7 @@ var cookieParser = require("cookie-parser");
 // var client_secret = "33909bb80a36498188ae6cdd1cfb22cc"; // Your secret
 // var redirect_uri = "http://localhost:8000/callback"; // Your redirect uri
 
+var prod = true;
 var client_id = "e74e033a43ed4b90ac10344685f81e66"; // Your client id
 var client_secret = "20188ba0d7224bb58682aad12e3bee4f"; // Your secret
 var redirect_uri = prod
@@ -55,7 +55,7 @@ app.get("/login", function (req, res) {
 
   // your application requests authorization
   var scope = "user-read-private user-read-email user-read-playback-state";
-  res.redirect(
+  var response = res.redirect(
     "https://accounts.spotify.com/authorize?" +
       querystring.stringify({
         response_type: "code",
@@ -65,6 +65,7 @@ app.get("/login", function (req, res) {
         state: state,
       })
   );
+  console.log(response);
 });
 
 app.get("/callback", function (req, res) {
@@ -104,7 +105,7 @@ app.get("/callback", function (req, res) {
         var access_token = body.access_token,
           refresh_token = body.refresh_token;
 
-        console.log(access_token);
+        console.log("token", access_token);
 
         var options = {
           url: "https://api.spotify.com/v1/me",
@@ -120,7 +121,11 @@ app.get("/callback", function (req, res) {
         // we can also pass the token to the browser to make requests from there
         res.redirect(
           prod
-            ? "http://abhisheksah.netlify.app/"
+            ? "http://abhisheksah.netlify.app/" +
+                querystring.stringify({
+                  access_token: access_token,
+                  refresh_token: refresh_token,
+                })
             : "http://localhost:3000/#" +
                 querystring.stringify({
                   access_token: access_token,
