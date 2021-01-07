@@ -7,6 +7,7 @@
  * https://developer.spotify.com/web-api/authorization-guide/#authorization_code_flow
  */
 
+var prod = true;
 var express = require("express"); // Express web server framework
 var request = require("request"); // "Request" library
 var cors = require("cors");
@@ -19,7 +20,9 @@ var cookieParser = require("cookie-parser");
 
 var client_id = "e74e033a43ed4b90ac10344685f81e66"; // Your client id
 var client_secret = "20188ba0d7224bb58682aad12e3bee4f"; // Your secret
-var redirect_uri = "http://localhost:8000/callback"; // Your redirect uri
+var redirect_uri = prod
+  ? "https://spotify-auth-server-v1.netlify.app/callback"
+  : "http://localhost:8000/callback"; // Your redirect uri
 
 /**
  * Generates a random string containing numbers and letters
@@ -116,11 +119,13 @@ app.get("/callback", function (req, res) {
 
         // we can also pass the token to the browser to make requests from there
         res.redirect(
-          "http://localhost:3000/#" +
-            querystring.stringify({
-              access_token: access_token,
-              refresh_token: refresh_token,
-            })
+          prod
+            ? "http://abhisheksah.netlify.app/#"
+            : "http://localhost:3000/#" +
+                querystring.stringify({
+                  access_token: access_token,
+                  refresh_token: refresh_token,
+                })
         );
       } else {
         res.redirect(
